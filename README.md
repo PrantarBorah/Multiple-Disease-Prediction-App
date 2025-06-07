@@ -48,7 +48,7 @@ small, public datasets. The diabetes and Parkinson's detectors are
 uses **logistic regression**. These algorithms are simple and
 interpretable, but their accuracy is limited by the size and quality of
 the datasets. On basic train/test splits the notebooks report accuracies
-around the mid to high 70% range.
+around the mid to high 80% range.
 
 For a production‑ready medical tool you would typically want more
 extensive evaluation, cross‑validation and possibly more complex
