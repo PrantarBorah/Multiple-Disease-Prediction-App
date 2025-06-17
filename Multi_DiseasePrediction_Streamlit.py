@@ -1,21 +1,18 @@
-import os
-import pickle
 import streamlit as st
 from streamlit_option_menu import option_menu
+import pickle
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Import prediction functions from new model files
+from parkinsons_model import parkinsons_prediction
+from diabetes_model import diabetes_prediction
+from heart_disease_model import heart_disease_prediction
 
 # Set page configuration
 st.set_page_config(page_title="Health Assistant",
                    layout="wide",
                    page_icon="🧑‍⚕️")
-
-# loading the saved models
-BASE_DIR = os.path.dirname(__file__)
-
-diabetes_model = pickle.load(open(os.path.join(BASE_DIR, 'trained_model.sav'), 'rb'))
-
-heart_disease_model = pickle.load(open(os.path.join(BASE_DIR, 'heart_disease_model.sav'), 'rb'))
-
-parkinsons_model = pickle.load(open(os.path.join(BASE_DIR, 'parkinsons_model.sav'), 'rb'))
 
 # sidebar for navigation
 with st.sidebar:
@@ -73,16 +70,36 @@ if selected == 'Diabetes Prediction':
         user_input = [Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin,
                       BMI, DiabetesPedigreeFunction, Age]
 
-        user_input = [float(x) for x in user_input]
-
-        diab_prediction = diabetes_model.predict([user_input])
-
-        if diab_prediction[0] == 1:
-            diab_diagnosis = 'The person is diabetic'
-        else:
-            diab_diagnosis = 'The person is not diabetic'
+        # Ensure all inputs are converted to float
+        try:
+            user_input_float = [float(x) for x in user_input]
+            diab_diagnosis = diabetes_prediction(user_input_float)
+        except ValueError:
+            diab_diagnosis = "Please enter valid numerical values for all fields."
 
     st.success(diab_diagnosis)
+
+    st.subheader("Feature Importances (Diabetes Model)")
+    try:
+        diabetes_feature_importances = pickle.load(open('diabetes_feature_importances.pkl', 'rb'))
+        diabetes_feature_names = pickle.load(open('diabetes_feature_names.pkl', 'rb'))
+
+        # Create a DataFrame for better visualization
+        feature_df = pd.DataFrame({
+            'Feature': diabetes_feature_names,
+            'Importance': diabetes_feature_importances
+        }).sort_values(by='Importance', ascending=False)
+
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.barh(feature_df['Feature'], feature_df['Importance'], color='skyblue')
+        ax.set_xlabel('Importance')
+        ax.set_ylabel('Feature')
+        ax.set_title('Diabetes Model Feature Importances')
+        plt.gca().invert_yaxis() # Display most important at the top
+        st.pyplot(fig)
+
+    except FileNotFoundError:
+        st.warning("Run diabetes_model.py first to generate feature importance data.")
 
 # Heart Disease Prediction Page
 if selected == 'Heart Disease Prediction':
@@ -140,16 +157,35 @@ if selected == 'Heart Disease Prediction':
 
         user_input = [age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal]
 
-        user_input = [float(x) for x in user_input]
-
-        heart_prediction = heart_disease_model.predict([user_input])
-
-        if heart_prediction[0] == 1:
-            heart_diagnosis = 'The person is having heart disease'
-        else:
-            heart_diagnosis = 'The person does not have any heart disease'
+        # Ensure all inputs are converted to float
+        try:
+            user_input_float = [float(x) for x in user_input]
+            heart_diagnosis = heart_disease_prediction(user_input_float)
+        except ValueError:
+            heart_diagnosis = "Please enter valid numerical values for all fields."
 
     st.success(heart_diagnosis)
+
+    st.subheader("Feature Importances (Heart Disease Model)")
+    try:
+        heart_feature_importances = pickle.load(open('heart_disease_feature_importances.pkl', 'rb'))
+        heart_feature_names = pickle.load(open('heart_disease_feature_names.pkl', 'rb'))
+
+        feature_df = pd.DataFrame({
+            'Feature': heart_feature_names,
+            'Importance': heart_feature_importances
+        }).sort_values(by='Importance', ascending=False)
+
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.barh(feature_df['Feature'], feature_df['Importance'], color='lightcoral')
+        ax.set_xlabel('Importance')
+        ax.set_ylabel('Feature')
+        ax.set_title('Heart Disease Model Feature Importances')
+        plt.gca().invert_yaxis()
+        st.pyplot(fig)
+
+    except FileNotFoundError:
+        st.warning("Run heart_disease_model.py first to generate feature importance data.")
 
 # Parkinson's Prediction page
 if selected == "Parkinsons Prediction":
@@ -235,17 +271,36 @@ if selected == "Parkinsons Prediction":
         user_input = [fo, fhi, flo, Jitter_percent, Jitter_Abs,
                     RAP, PPQ, DDP, Shimmer, Shimmer_dB, APQ3, APQ5,
                      APQ, DDA, NHR, HNR, RPDE, DFA, spread1, spread2, D2, PPE]
-
-        user_input = [float(x) for x in user_input]
-
-        parkinsons_prediction = parkinsons_model.predict([user_input])
-
-        if parkinsons_prediction[0] == 1:
-            parkinsons_diagnosis = "The person has Parkinson's disease"
-        else:
-            parkinsons_diagnosis = "The person does not have Parkinson's disease"
+        
+        # Ensure all inputs are converted to float
+        try:
+            user_input_float = [float(x) for x in user_input]
+            parkinsons_diagnosis = parkinsons_prediction(user_input_float)
+        except ValueError:
+            parkinsons_diagnosis = "Please enter valid numerical values for all fields."
 
     st.success(parkinsons_diagnosis)
+
+    st.subheader("Feature Importances (Parkinsons Model)")
+    try:
+        parkinsons_feature_importances = pickle.load(open('parkinsons_feature_importances.pkl', 'rb'))
+        parkinsons_feature_names = pickle.load(open('parkinsons_feature_names.pkl', 'rb'))
+
+        feature_df = pd.DataFrame({
+            'Feature': parkinsons_feature_names,
+            'Importance': parkinsons_feature_importances
+        }).sort_values(by='Importance', ascending=False)
+
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.barh(feature_df['Feature'], feature_df['Importance'], color='lightgreen')
+        ax.set_xlabel('Importance')
+        ax.set_ylabel('Feature')
+        ax.set_title('Parkinsons Model Feature Importances')
+        plt.gca().invert_yaxis()
+        st.pyplot(fig)
+
+    except FileNotFoundError:
+        st.warning("Run parkinsons_model.py first to generate feature importance data.")
     
         
 
