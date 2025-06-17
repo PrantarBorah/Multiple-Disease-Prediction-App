@@ -72,3 +72,7 @@ For a production‑ready medical tool, further extensive evaluation, cross‑val
 This project is shared for educational purposes. Please consult the
 original dataset sources for their respective licenses.
 
+![Placeholder for Diabetes Prediction Demo](path/to/your/diabetes_demo.gif)
+![Placeholder for Heart Disease Prediction Demo](path/to/your/heart_disease_demo.gif)
+![Placeholder for Parkinsons Prediction Demo](path/to/your/parkinsons_demo.gif)
+
