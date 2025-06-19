@@ -1,5 +1,8 @@
 # Multiple Disease Prediction App
 
+Project Highlight:
+Deployed a Streamlit-based ML app predicting Diabetes, Heart Disease,\& Parkinson’s using SVM and Random Forest, achieving up to 95.7\% F1-score, with integrated model interpretability and cross-validation for robust evaluation.
+
 This repository contains a [Streamlit](https://streamlit.io) web application that predicts the likelihood of
 three different diseases using trained machine learning models.
 The app allows a user to enter clinical parameters and returns a simple diagnosis
